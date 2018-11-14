@@ -1,0 +1,60 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Transform" : "AWS::Serverless-2016-10-31",
+  "Description" : "An AWS Serverless Application that uses the ASP.NET Core framework running in Amazon Lambda.",
+
+  "Parameters" : {
+    
+  },
+
+  
+
+  "Resources" : {
+
+    "AspNetCoreFunction" : {
+      "Type" : "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "ElasticSearchSpeedTest::ElasticSearchSpeedTest.LambdaEntryPoint::FunctionHandlerAsync",
+        "Runtime": "dotnetcore2.1",
+        "CodeUri": "",
+        "MemorySize": 256,
+        "Timeout": 30,
+        "Role": null,
+        "Policies": [ "AWSLambdaFullAccess" ],
+        "Environment" : {
+          "Variables" : {
+            "ElasticSearchUrl" :
+                            { "Fn::GetAtt" : ["ElasticSearch","DomainEndpoint"] } 
+          }
+        },
+        "Events": {
+          "PutResource": {
+            "Type": "Api",
+            "Properties": {
+              "Path": "/{proxy+}",
+              "Method": "ANY"
+            }
+          }
+        }
+      }
+    },
+	"ElasticSearch": {
+            "Type": "AWS::Elasticsearch::Domain",
+            "Properties": {
+			  "DomainName" : "elasticsearchspeedtest"		,
+			   "EBSOptions" : { "EBSEnabled" : true, "VolumeSize" : 10},
+			     "ElasticsearchClusterConfig" : { "InstanceType" : "t2.small.elasticsearch"}
+			}
+        }
+
+    
+  },
+
+  "Outputs" : {
+    "ApiURL" : {
+        "Description" : "API endpoint URL for Prod environment",
+        "Value" : { "Fn::Sub" : "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/" }
+    }
+    
+  }
+}

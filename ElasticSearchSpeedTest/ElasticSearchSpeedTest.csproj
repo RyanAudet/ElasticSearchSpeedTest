@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    <AWSProjectType>Lambda</AWSProjectType>
+    <UserSecretsId>1424625b-1ecc-4101-8022-645fcd7e2291</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.Elasticsearch" Version="3.3.10.13" />
+    <PackageReference Include="Elasticsearch.Net.Aws" Version="6.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.5" />
+
+    <PackageReference Include="AWSSDK.S3" Version="3.3.26.11" />
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.3.6" />
+    <PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="2.1.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.6" />
+    <PackageReference Include="NEST" Version="6.4.0" />
+  </ItemGroup>
+
+</Project>
