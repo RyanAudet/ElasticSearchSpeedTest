@@ -8,7 +8,7 @@ namespace ElasticSearchSpeedTest.Services
 {
     public interface IElasticSearchService
     {
-        Task<Book[]> SearchBooks(string query);
+        Task<TimedEntity<IEnumerable<Book>>> SearchBooks(string query);
         Task IndexBook(Book book);
     }
 }

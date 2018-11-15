@@ -1,14 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using ElasticSearchSpeedTest.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace ElasticSearchSpeedTest
 {
@@ -29,6 +26,11 @@ namespace ElasticSearchSpeedTest
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.AddScoped<IElasticSearchService, ElasticSearchService>();
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
@@ -45,6 +47,25 @@ namespace ElasticSearchSpeedTest
 
             app.UseHttpsRedirection();
             app.UseMvc();
+
+            // Using a workaround as per:
+            // https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/678#issuecomment-394999841
+
+            //const string swaggerPrefix = "api/docs";
+            const string swaggerPrefix = "swagger";
+
+            app.UseRewriter(new RewriteOptions().AddRedirect($"(.*){swaggerPrefix}$", $"$1{swaggerPrefix}/index.html"));
+
+            app.UseSwagger(c =>
+            {
+                c.RouteTemplate = $"{swaggerPrefix}/{{documentName}}/swagger.json";
+            });
+
+            app.UseSwaggerUI(c =>
+            {
+                c.RoutePrefix = swaggerPrefix;
+                c.SwaggerEndpoint("v1/swagger.json", "My API (V1)");
+            });
         }
     }
 }

@@ -19,7 +19,7 @@ namespace ElasticSearchSpeedTest.Controllers
         }
 
         [HttpGet("{query}")]
-        public async Task<IEnumerable<Book>> Get(string query)
+        public async Task<TimedEntity<IEnumerable<Book>>> Get(string query)
         {
             return await _elasticSearchService.SearchBooks(query);
         }

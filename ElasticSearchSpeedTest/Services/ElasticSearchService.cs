@@ -9,6 +9,7 @@ using Elasticsearch.Net;
 using Elasticsearch.Net.Aws;
 using ElasticSearchSpeedTest.Models;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace ElasticSearchSpeedTest.Services
 {
@@ -22,7 +23,11 @@ namespace ElasticSearchSpeedTest.Services
         {
             _logger = logger;
             string elasticSearchUrl = configuration["ElasticSearch:Url"] ?? "https://" + Environment.GetEnvironmentVariable("ElasticSearchUrl");
-            string elasticSearchRegion = configuration["AWS:Region"] ?? Environment.GetEnvironmentVariable(Amazon.Runtime.EnvironmentVariableAWSRegion.ENVIRONMENT_VARIABLE_REGION);
+
+            var regionRegex = new Regex(@"\.([^\.]+)\.es\.amazonaws\.com/?$");
+            var matches = regionRegex.Matches(elasticSearchUrl);
+
+            var elasticSearchRegion = matches.Count > 0 ? matches[0].Groups[1].Value : null;
 
             if (!string.IsNullOrWhiteSpace(elasticSearchUrl) && !string.IsNullOrWhiteSpace(elasticSearchRegion))
             {
@@ -48,7 +53,7 @@ namespace ElasticSearchSpeedTest.Services
             await elasticClient.DeleteIndexAsync(BookIndex);
         }
 
-        public async Task<Book[]> SearchBooks(string query)
+        public async Task<TimedEntity<IEnumerable<Book>>> SearchBooks(string query)
         {
             var authorQuery = new MatchQuery()
             {
@@ -78,7 +83,7 @@ namespace ElasticSearchSpeedTest.Services
             st.Stop();
             _logger.LogCritical("Elastic search call: " + st.ElapsedMilliseconds);
 
-            return response.Documents.ToArray();
+            return new TimedEntity<IEnumerable<Book>> { Entity = response.Documents.ToArray(), MilliSeconds = st.ElapsedMilliseconds };
         }
     }
 }
